@@ -100,8 +100,6 @@ class Meet extends EventEmitter {
 
     await this.init()
 
-    const store = this.store
-
     this.swarm0.on('connection', this._onConnectReplicate.bind(this))
     this.swarm1.on('connection', this._onConnectGossip.bind(this))
     this.swarm0.on('error', this._error.bind(this))
@@ -112,15 +110,6 @@ class Meet extends EventEmitter {
 
     this.swarm0.join(tk0)
     this.swarm1.join(tk1)
-
-    const state = this.state
-    let inputs = await state.get('inputs')
-    inputs = decodeState(inputs) || []
-
-    inputs.forEach(async (i) => {
-      const hc = store.get({ key: Buffer.from(i, 'hex') })
-      await hc.ready()
-    })
   }
 
   async _stop () {

@@ -19,8 +19,8 @@ class BasedMeet extends Meet {
     const base = new Based.Autobased(null, {
       type: this.conf.type,
       inputs: [core],
-      storealInput: core,
-      storealOutput: coreOut
+      localInput: core,
+      localOutput: coreOut
     })
 
     this.base = base
@@ -83,18 +83,18 @@ class BasedMeet extends Meet {
     this._mem[mk] = { connId: cid }
     this._mem[cid] = { type: 'input', hcKey: hc.key }
 
-    let inputs = await state.get('inputs')
-    inputs = this.decodeState(inputs) || []
+    let group = await state.get('group')
+    group = this.decodeState(group) || []
 
-    if (inputs.indexOf(lk) === -1) {
-      inputs.push(lk)
+    if (group.indexOf(lk) === -1) {
+      group.push(lk)
     }
 
     if (proc) {
       base.autobase.addInput(hc)
     }
 
-    await state.put('inputs', this.encodeState(inputs))
+    await state.put('group', this.encodeState(group))
 
     this.emit('input-add', lk)
   }
@@ -113,25 +113,35 @@ class BasedMeet extends Meet {
     delete this._mem[mk]
     delete this._mem[cid]
 
-    let inputs = await state.get('inputs')
-    inputs = this.decodeState(inputs) || []
+    let group = await state.get('group')
+    group = this.decodeState(group) || []
 
-    if (inputs) {
-      const iix = inputs.indexOf(lk)
+    if (group) {
+      const iix = group.indexOf(lk)
 
       if (iix > -1) {
-        inputs.splice(iix, 1)
+        group.splice(iix, 1)
       }
     }
 
     base.autobase.removeInput(hc)
-    await state.put('inputs', this.encodeState(inputs))
+    await state.put('group', this.encodeState(group))
 
     this.emit('input-remove', lk)
   }
 
   async start () {
     await this._start()
+
+    const state = this.state
+    let group = await state.get('group')
+    group = this.decodeState(group) || []
+
+    const store = this.store
+    group.forEach(async (i) => {
+      const hc = store.get({ key: Buffer.from(i, 'hex') })
+      await hc.ready()
+    })
 
     this.started = true
     this.emit('started')
