@@ -9,18 +9,18 @@ class BasedMeet extends Meet {
   async init () {
     await this._init()
 
-    const loc = this.loc
+    const store = this.store
 
-    const core = loc.get({ name: 'db-gen' })
+    const core = store.get({ name: 'db-gen' })
     await core.ready()
 
-    const coreOut = loc.get({ name: 'db-gen-out' })
+    const coreOut = store.get({ name: 'db-gen-out' })
 
     const base = new Based.Autobased(null, {
       type: this.conf.type,
       inputs: [core],
-      localInput: core,
-      localOutput: coreOut
+      storealInput: core,
+      storealOutput: coreOut
     })
 
     this.base = base
@@ -31,13 +31,13 @@ class BasedMeet extends Meet {
   }
 
   async _onGossipData_0 (cid, d) {
-    const loc = this.loc
+    const store = this.store
 
     switch (d.op) {
       case 'add-input':
         {
           d.value.forEach(async k => {
-            const hc = loc.get({ key: Buffer.from(k, 'hex') })
+            const hc = store.get({ key: Buffer.from(k, 'hex') })
             await hc.ready()
 
             this.addInput(cid, hc)
@@ -47,7 +47,7 @@ class BasedMeet extends Meet {
       case 'remove-input':
         {
           d.value.forEach(async (k) => {
-            const hc = loc.get({ key: Buffer.from(k, 'hex') })
+            const hc = store.get({ key: Buffer.from(k, 'hex') })
             await hc.ready()
 
             this.removeInput(cid, hc)
@@ -58,9 +58,9 @@ class BasedMeet extends Meet {
   }
 
   async _onConnectGossip_0 (conn, info) {
-    const loc = this.loc
+    const store = this.store
 
-    const core = loc.get({ name: 'db-gen' })
+    const core = store.get({ name: 'db-gen' })
     await core.ready()
 
     conn.write(JSON.stringify({

@@ -2,13 +2,13 @@ const Hyperswarm = require('hyperswarm')
 const Hyperbee = require('hyperbee')
 const Corestore = require('corestore')
 const goodbye = require('graceful-goodbye')
-const Based = require('./../hyper-cmd-lib-based/index')
 const EventEmitter = require('events')
 const { v4: uuid } = require('uuid')
 
 function decodeState (data) {
-  data = data && data.value ?
-    JSON.parse(data.value.toString()) : null
+  data = data && data.value
+    ? JSON.parse(data.value.toString())
+    : null
   return data
 }
 
@@ -17,9 +17,10 @@ function encodeState (data) {
 }
 
 class Meet extends EventEmitter {
-  constructor (conf) {
+  constructor (conf, store) {
     super()
 
+    this.store = store
     this.conf = conf
     this.type = this.conf.type
 
@@ -37,12 +38,12 @@ class Meet extends EventEmitter {
   async _init () {
     const conf = this.conf
 
-    const loc = new Corestore(conf.storeDir)
-    await loc.ready()
+    const store = new Corestore(conf.storeDir)
+    await store.ready()
 
-    this.loc = loc
+    this.store = store
 
-    const coreState = loc.get({ name: 'db-state' })
+    const coreState = store.get({ name: 'db-state' })
     this.state = new Hyperbee(coreState)
   }
 
@@ -65,7 +66,7 @@ class Meet extends EventEmitter {
   }
 
   _onConnectReplicate (conn, info) {
-    this.loc.replicate(conn)
+    this.store.replicate(conn)
 
     conn.on('error', e => {
       this.emit('error', { type: 'repl', peerInfo: info, error: e })
@@ -73,7 +74,6 @@ class Meet extends EventEmitter {
   }
 
   async _onConnectGossip (conn, info) {
-    const loc = this.loc
     const cid = uuid()
 
     conn.on('data', d => {
@@ -100,7 +100,7 @@ class Meet extends EventEmitter {
 
     await this.init()
 
-    const loc = this.loc
+    const store = this.store
 
     this.swarm0.on('connection', this._onConnectReplicate.bind(this))
     this.swarm1.on('connection', this._onConnectGossip.bind(this))
@@ -118,7 +118,7 @@ class Meet extends EventEmitter {
     inputs = decodeState(inputs) || []
 
     inputs.forEach(async (i) => {
-      const hc = loc.get({ key: Buffer.from(i, 'hex') })
+      const hc = store.get({ key: Buffer.from(i, 'hex') })
       await hc.ready()
     })
   }
