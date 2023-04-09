@@ -1,0 +1,28 @@
+{
+  "name": "hyper-cmd-lib-coord",
+  "version": "0.0.1",
+  "description": "hyper-cmd-lib-coord",
+  "main": "index.js",
+  "dependencies": {
+    "@hyper-cmd/lib-keys": "https://github.com/holepunchto/hyper-cmd-lib-keys#v0.0.2",
+    "@hyper-cmd/lib-utils": "https://github.com/holepunchto/hyper-cmd-lib-utils#v0.0.2",
+    "corestore": "^6.5.1",
+    "graceful-goodbye": "^1.2.1",
+    "hyperbee": "^2.7.3",
+    "hyperswarm": "^4.3.7",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "brittle": "^3.1.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/holepunchto/hyper-cmd-lib-coord.git"
+  },
+  "author": "Paolo Ardoino (@prdn)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/holepunchto/hyper-cmd-lib-coord/issues"
+  },
+  "homepage": "https://github.com/holepunchto/hyper-cmd-lib-coord"
+}
